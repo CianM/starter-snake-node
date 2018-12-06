@@ -9,6 +9,13 @@ const {
   poweredByHandler
 } = require('./handlers.js')
 
+const util = require('util');
+const log = (obj) => console.log(util.inspect(obj, { showHidden: false, depth: null }));
+
+let game; // current game object
+const Game = require("./game");
+
+
 // For deployment to Heroku, the port needs to be set using ENV, so
 // we check for the port number in process.env
 app.set('port', (process.env.PORT || 9001))
@@ -21,13 +28,27 @@ app.use(poweredByHandler)
 
 // --- SNAKE LOGIC GOES BELOW THIS LINE ---
 
+const SNAKE_COLOR = "#009A49";
+
+
 // Handle POST request to '/start'
 app.post('/start', (request, response) => {
-  // NOTE: Do something here to start the game
+  console.log("/start")
+  log(request.body);
+  
+  const { you, board } = request.body; 
+  try {
+
+  }
+  catch(u) {
+    console.log("U")
+    log(u)
+  }
+  game = new Game(you, board);
 
   // Response data
   const data = {
-    color: '#DFFF00',
+    color: SNAKE_COLOR,
   }
 
   return response.json(data)
@@ -35,11 +56,22 @@ app.post('/start', (request, response) => {
 
 // Handle POST request to '/move'
 app.post('/move', (request, response) => {
-  // NOTE: Do something here to generate your move
-
+  console.log("/move");
+  //log(request.body)
   // Response data
+
+  const { you, board } = request.body; 
+  try {
+    var direction = game.move(you, board);
+  }
+  catch(x) {
+    console.log("x")
+    log(x);
+  }
+  
+  console.log({direction})
   const data = {
-    move: 'up', // one of: ['up','down','left','right']
+    move: direction
   }
 
   return response.json(data)
@@ -47,6 +79,7 @@ app.post('/move', (request, response) => {
 
 app.post('/end', (request, response) => {
   // NOTE: Any cleanup when a game is complete.
+  delete game;
   return response.json({})
 })
 
